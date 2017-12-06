@@ -14,6 +14,13 @@ def seen_before?(history, current)
   val
 end
 
+def seen_twice?(history, current)
+  debug("seen before------")
+  debug(history)
+  debug(current)
+  history.find_all{|x| x == current}.count == 2
+end
+
 def redistribute(blocks)
   max = blocks.max
   index = blocks.find_index{|b| b == max}
@@ -29,14 +36,17 @@ def detect_loop(initial)
 
   blocks = redistribute(initial.clone)
   
-  until(seen_before?(previous, blocks))
+  until(seen_twice?(previous, blocks))
     previous << blocks
     blocks = redistribute(blocks.clone)
   end
-  previous.length
+  previous << blocks
+
+  indexes = previous.each_with_index.map{|mem, i| {mem: mem, i: i}}.find_all{|x| x[:mem] == blocks}.map{|x| x[:i]}
+  indexes[-1] - indexes[-2]
 end
 
-#pp detect_loop([0, 2, 7, 0])
+pp detect_loop([0, 2, 7, 0])
 input = "4	10	4	1	8	4	9	14	5	1	14	15	0	15	3	5".split(' ').map{|x| x.chomp}.map{|x| x.to_i}
 pp input
 pp detect_loop(input)
