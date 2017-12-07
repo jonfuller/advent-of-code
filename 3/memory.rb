@@ -73,8 +73,8 @@ def get_coords(ring)
     end
   
   items.each do |item|
-    item[:x] = item[:x].abs
-    item[:y] = item[:y].abs
+    item[:x] = item[:x]
+    item[:y] = item[:y]
   end
 end
 
@@ -82,7 +82,7 @@ def transport_length(input)
   items = get_coords(rings(input).last)
 
   item = items.find{|i| i[:num] == input}
-  item[:x] + item[:y]
+  item[:x].abs + item[:y].abs
 end
 
 pp transport_length(1)
