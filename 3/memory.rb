@@ -110,30 +110,25 @@ def neighbors(current_item, items)
 end
 
 def stress_test(input)
-  x = rings(600) # needs to be a big number?
+  items = rings(600) # needs to be a big number?
     .map{|ring| get_coords(ring)}
     .flatten
+    .map{|item| item[:value] = 0; item}
     .sort_by{|item| item[:num]}
   
-  y = x
-    .map{|item| item[:value] = 0; item}
-    .map{|item| item[:neighbors] = neighbors(item, x); item}
-  
-  debug(y.length)
-  y[0][:value] = 1
-  y.take(1).each do |item|
-    item[:value] = item[:value] + item[:neighbors].map{|neighbor| neighbor[:value]}.sum
-    debug(item[:value])
+  items[0][:value] = 1
+  items.each do |item|
+    item[:value] = item[:value] + neighbors(item, items).map{|neighbor| neighbor[:value]}.sum
     break if item[:value] > input
   end
   
-  y.max_by{|item| item[:value]}
+  items.max_by{|item| item[:value]}[:value]
 end
 
-# pp transport_length(1)
-# pp transport_length(12)
-# pp transport_length(23)
-# pp transport_length(1024)
-# pp transport_length(289326)
+pp transport_length(1)
+pp transport_length(12)
+pp transport_length(23)
+pp transport_length(1024)
+pp transport_length(289326)
 
 pp stress_test(289326)
