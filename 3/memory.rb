@@ -85,8 +85,55 @@ def transport_length(input)
   item[:x].abs + item[:y].abs
 end
 
-pp transport_length(1)
-pp transport_length(12)
-pp transport_length(23)
-pp transport_length(1024)
-pp transport_length(289326)
+def get_neighbor_coords(item)
+  x = item[:x]
+  y = item[:y]
+
+  neighbor_coords = []
+  neighbor_coords << {x: x+1, y: y}
+  neighbor_coords << {x: x+1, y: y+1}
+  neighbor_coords << {x: x, y: y+1}
+  neighbor_coords << {x: x-1, y: y+1}
+  neighbor_coords << {x: x-1, y: y}
+  neighbor_coords << {x: x-1, y: y-1}
+  neighbor_coords << {x: x, y: y-1}
+  neighbor_coords << {x: x+1, y: y-1}
+end
+
+def neighbors(current_item, items)
+  neighbor_coords = get_neighbor_coords(current_item)
+
+  neighbor_coords.map{|candidate|
+    items.find{|item| item[:x] == candidate[:x] && item[:y] == candidate[:y]}
+  }
+  .reject{|item| item.nil?}
+end
+
+def stress_test(input)
+  x = rings(600) # needs to be a big number?
+    .map{|ring| get_coords(ring)}
+    .flatten
+    .sort_by{|item| item[:num]}
+  
+  y = x
+    .map{|item| item[:value] = 0; item}
+    .map{|item| item[:neighbors] = neighbors(item, x); item}
+  
+  debug(y.length)
+  y[0][:value] = 1
+  y.take(1).each do |item|
+    item[:value] = item[:value] + item[:neighbors].map{|neighbor| neighbor[:value]}.sum
+    debug(item[:value])
+    break if item[:value] > input
+  end
+  
+  y.max_by{|item| item[:value]}
+end
+
+# pp transport_length(1)
+# pp transport_length(12)
+# pp transport_length(23)
+# pp transport_length(1024)
+# pp transport_length(289326)
+
+pp stress_test(289326)
