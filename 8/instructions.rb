@@ -21,31 +21,14 @@ def conditional(condition, registers)
   register_value = registers[condition[:register]]
   comparison = condition[:comparison]
 
-  case operator
-  when '>'
-    register_value > comparison
-  when '>='
-    register_value >= comparison
-  when '=='
-    register_value == comparison
-  when '<'
-    register_value < comparison
-  when '<='
-    register_value <= comparison
-  when '!='
-    register_value != comparison
-  end
+  register_value.method(operator).call(comparison)
 end
 
 def run_instruction(instruction, registers)
   register = registers[instruction[:register]]
 
-  case instruction[:operation]
-  when 'inc'
-    registers[instruction[:register]] += instruction[:argument] if (conditional(instruction[:condition], registers))
-  when 'dec'
-    registers[instruction[:register]] -= instruction[:argument] if (conditional(instruction[:condition], registers))
-  end
+  incr_decr = instruction[:operation] == 'inc' ? 1 : -1
+  registers[instruction[:register]] += incr_decr * instruction[:argument] if (conditional(instruction[:condition], registers))
 end
 
 def run_program(instructions, initial_state)
