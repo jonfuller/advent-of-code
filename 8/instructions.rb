@@ -49,21 +49,27 @@ def run_instruction(instruction, registers)
 end
 
 def run_program(instructions, initial_state)
+  states = [initial_state]
   registers = initial_state
   instructions.each do |i|
     run_instruction(i, registers)
+    states << registers.dup
   end
-  registers
+  states
 end
 
 def max_registers(instructions)
   # initialize all registers to zero
   registers = instructions.map{|i| i[:register]}.inject({}){|memo, obj| memo[obj] = 0; memo}
-  run_program(instructions, registers).values.max
+
+  program_states = run_program(instructions, registers)
+  
+  pp program_states.last.values.max
+  pp program_states.map{|s| s.values}.flatten.max
 end
 
 sample = load_input('sample')
 input = load_input('input')
 
-pp max_registers(sample)
-pp max_registers(input)
+max_registers(sample)
+max_registers(input)
