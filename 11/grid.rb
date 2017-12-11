@@ -35,11 +35,19 @@ def move(current, direction)
   }
 end
 
-def count_steps(input)
-  starting = {x: 0, y: 0, z: 0}
-  ending = input.inject(starting){|current, step| move(current, step)}
+def distance(a, b)
+  [:x, :y, :z].inject(0){|sum, sym| sum + (a[sym] - b[sym]).abs}/2
+end
 
-  [:x, :y, :z].inject(0){|sum, sym| sum + (ending[sym] - starting[sym]).abs}/2
+def count_steps(input)
+  moves = []
+  starting = {x: 0, y: 0, z: 0}
+  ending = input.inject(starting){|current, step| moves << move(current, step); moves.last}
+
+  {
+    ending_distance: distance(starting, ending),
+    furthest_distance: moves.map{|m| distance(starting, m)}.max
+  }
 end
 
 # samples.each do |sample|
