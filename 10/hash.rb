@@ -29,7 +29,7 @@ def hash(input)
   round[:values]
     .each_slice(16)
     .map{|slice| slice.inject(0){|memo, obj| memo^obj}}
-    .map{|char| char.to_s(16)}
+    .map{|char| char.to_s(16).rjust(2, '0')}
     .join
 end
 
