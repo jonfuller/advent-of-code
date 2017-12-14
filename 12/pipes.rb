@@ -1,4 +1,8 @@
+require 'rubygems'
 require 'pp'
+require 'bundler/setup'
+require 'rgl/adjacency'
+require 'rgl/connected_components'
 
 def input(filename)
   File.read(filename)
@@ -6,54 +10,37 @@ def input(filename)
     .map{|line|
       splits = line.split(' ')
       {
-          a: splits[0],
-          b: splits.drop(2).map{|s| s.gsub(',', '')}
+          a: splits[0].to_i,
+          b: splits.drop(2).map{|s| s.gsub(',', '').to_i}
       }
     }
 end
 
-def zero_connected(pipes, connected = [])
-  zero_pipe = pipes.find{|p| p[:a] == '0'}
-  connected += zero_pipe[:b] if zero_pipe
-
-  pipes.reject{|p| p[:a] == '0'}.each do |pipe|
-    pipe[:b].each do |b|
-      connected += [b, pipe[:a]] if connected.any?{|c| c == b}
+def graphit(input)
+  graph = RGL::AdjacencyGraph.new
+  input.each do |connections|
+    connections[:b].each do |b|
+      graph.add_edge(connections[:a], b)
     end
   end
-  connected
-    .uniq
-    .reject{|c| c == '0'}
+  graph
 end
 
-sample = input('sample')
-c = []
-c = zero_connected(sample, c)
-c = zero_connected(sample, c)
-pp c.length
+def zero_group(graph)
+  groups(graph).find{|cc| cc.any?{|v| v == 0}}.length
+end
 
-sample = input('input')
-c = []
-c = zero_connected(sample, c)
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
-c = zero_connected(sample, c)
-pp c.length
+def groups(graph)
+  ccs = []
+  graph.each_connected_component { |c| ccs << c }
+  ccs
+end
+
+sample = graphit(input('sample'))
+input = graphit(input('input'))
+
+pp zero_group(sample)
+pp zero_group(input)
+
+pp groups(sample).length
+pp groups(input).length
