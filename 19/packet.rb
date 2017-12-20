@@ -79,18 +79,20 @@ def is_letter?(char)
 end
 
 def move(start_coord, last_direction, letters, maze)
+  steps = 1
   next_location, last_direction = find_move(start_coord, maze, last_direction)
 
   while next_location && v(next_location, maze) != ' ' do
+    steps += 1
     debug "#{v(next_location, maze)} [#{next_location[:x]},#{next_location[:y]}] - {#{last_direction}}"
     letters << v(next_location, maze) if is_letter?(v(next_location, maze))
     next_location, last_direction = find_move(next_location, maze, last_direction)
   end
-  letters
+  {steps: steps, letters: letters.join}
 end
 
 sample_maze = input('sample')
 input_maze = input('input')
 
-pp move({x: 5, y: 0}, 'south', [], sample_maze).join
-pp move({x: 163, y: 0}, 'south', [], input_maze).join
+pp move({x: 5, y: 0}, 'south', [], sample_maze)
+pp move({x: 163, y: 0}, 'south', [], input_maze)
