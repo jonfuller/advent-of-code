@@ -44,7 +44,20 @@ def fields(initial)
   field = initial
   (0..Float::INFINITY)
     .lazy
-    .map{|_| field = move_field(field)}
+    .map{|_| field = remove_collisions(move_field(field))}
+end
+
+def remove_collisions(field)
+  hashed = field.inject({}){|memo, obj|
+    memo[obj[:p]] ||= []
+    memo[obj[:p]] << obj
+    memo
+  }
+  collision_ids = hashed
+    .find_all{|k,v| v.length > 1}
+    .map{|c| c.last}.flatten.map{|c| c[:id]}
+
+  field.reject{|particle| collision_ids.any?{|c| c == particle[:id]}}
 end
 
 sample_particles = [
@@ -61,3 +74,7 @@ slowest = input_particles.find_all{|particle| mag(particle[:a]) == min_a}
 closest = slowest.min_by{|particle| mag(particle[:v])}
 
 pp closest
+p fields(input_particles)
+   .map{|f| f.length}
+   .take(500)
+   .force
