@@ -50,6 +50,7 @@ def permute_grid(grid)
   [grid, a, b, c]
     .map{|g| flip_flop(g)}
     .each{|p| p.each{|g| grids << g}}
+    .uniq
 
   grids
 end
@@ -156,5 +157,5 @@ starting_grid = [
   "###".chars,
 ]
 
-output = iterate(starting_grid, input_rules, 5)
-p count_on(output)
+p count_on(iterate(starting_grid, input_rules, 5))
+p count_on(iterate(starting_grid, input_rules, 18))
