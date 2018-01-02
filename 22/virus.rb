@@ -46,10 +46,10 @@ South = 2
 West = 3
 
 Directions = {
-  North => {y: -1},
-  East => {x: 1},
-  South => {y: 1},
-  West => {x: -1}
+  North => {x: 0, y: -1},
+  East => {x: 1, y: 0},
+  South => {x: 0, y: 1},
+  West => {x: -1, y: 0}
 }
 
 def turn_right(direction)
@@ -62,13 +62,8 @@ end
 
 def move(position, direction)
   delta = Directions[direction]
-  x = position[:x] + (delta[:x] || 0)
-  y = position[:y] + (delta[:y] || 0)
-  {x: x, y: y}
-end
 
-def infected?(state, position)
-  (state[position] || Clean) == Infected
+  {x: position[:x] + delta[:x], y: position[:y] + delta[:y]}
 end
 
 def condition(state, position)
@@ -88,14 +83,24 @@ def new_condition(current_condition)
   end
 end
 
-def step(state, position, current_direction)
-  new_direction = infected?(state, position) ?
-    turn_right(current_direction) :
+def new_direction(current_condition, current_direction)
+  case current_condition
+  when Infected
+    turn_right(current_direction)
+  when Clean
     turn_left(current_direction)
+  when Weakened
+    current_direction
+  when Flagged
+    turn_right(turn_right(current_direction))
+  end
+end
 
+def step(state, position, current_direction)
+  new_direction =  new_direction(condition(state, position), current_direction)
   state[position] = new_condition(condition(state, position))
-  did_infect = infected?(state, position)
-  new_position = move(position, current_direction)
+  did_infect = condition(state, position) == Infected
+  new_position = move(position, new_direction)
 
   {state: state, position: new_position, current_direction: new_direction, infected: did_infect}
 end
@@ -104,14 +109,13 @@ def walk(state, position, current_direction, steps)
   infected_cnt = 0
   result = {state: state, position: position, current_direction: current_direction}
   (0...steps).each do |_|
-    puts _ if _%100 == 0
-    debug p_grid(result[:state], result[:position]), ""
+    puts _ if _%1_000_000 == 0
+    #debug p_grid(result[:state], result[:position]), ""
     result = step(result[:state], result[:position], result[:current_direction])
     infected_cnt += 1 if result[:infected]
   end
-  debug p_grid(result[:state], result[:position]), ""
+  #debug p_grid(result[:state], result[:position]), ""
   infected_cnt
 end
 
-#p walk(input('sample'), {x: 0, y: 0}, North, 10_000)
-p walk(input('input'), {x: 0, y: 0}, North, 10_000)
+p walk(input('input'), {x: 0, y: 0}, North, 10_000_000)
