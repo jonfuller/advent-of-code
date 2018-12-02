@@ -4,13 +4,28 @@ fun main(args: Array<String>) {
     var input = File("input")
         .readLines()
         ;
-    
-    var twos = input.filter { l -> hasTwoRepeats(l) };
-    var threes = input.filter { l -> hasThreeRepeats(l) };
 
-    println(twos.count())
-    println(threes.count())
-    println(twos.count() * threes.count())
+    for (i in 0..input.first().length-1) {
+        var y = hasDupAfterRemovingChar(input, i)
+        if (y.hasDuplicate && y.duplicates != null) {
+            println(y.duplicates)
+            break
+        }
+    }
+}
+
+data class DupResult(val hasDuplicate: Boolean, val duplicates: String?)
+
+fun hasDupAfterRemovingChar(input: List<String>, position: Int): DupResult {
+    var duplicates = input
+        .map { l -> l.removeRange(position, position + 1).toString() }
+        .groupBy { it }
+        .filter { g -> g.value.count() > 1 }
+
+    if (duplicates.any())
+        return DupResult(true, duplicates.keys.first())
+    else
+        return DupResult(false, null);
 }
 
 fun hasTwoRepeats(line: String): Boolean {
